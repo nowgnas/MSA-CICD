@@ -1,19 +1,20 @@
 #!/bin/bash
 
 # set variables
+SERVICE=discovery
 DIR=$(pwd)
 REPO=S08P31A205
 BRANCH=dev-be/discovery
 GITLAB_USERNAME=swlee0376
 GITLAB_PASSWORD=BcQJVNsusbhbymaS3w27
-DOCKER_COMPOSE_BLUE_FILE=${DIR}/discovery.yml
+
 DOCKER_HUB_USERNAME=nowgnas
 DOCKER_HUB_PASSWORD=dltkddnjs!!
 DOCKER_REPO=nowgnas/stockey
 
-DOCKER_COMPOSE_FILE=$DIR/discovery.yml
-GREEN_SERVICE_NAME=discovery_green
-BLUE_SERVICE_NAME=discovery_blue
+DOCKER_COMPOSE_FILE=$DIR/docker-compose.yml
+GREEN_SERVICE_NAME=$SERVICE_green
+BLUE_SERVICE_NAME=$SERVICE_blue
 
 # check if git repo exists
 if [ ! -d ${REPO} ]; then
