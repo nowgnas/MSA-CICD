@@ -5,8 +5,12 @@ services:
         image: nowgnas/stockey:latest
         ports:
             - "8081:8761"
+        environment:
+            PROFILE: dev
 
     discovery_blue:
         image: nowgnas/stockey:latest
         ports:
             - "8082:8761"
+        environment:
+            PROFILE: dev
