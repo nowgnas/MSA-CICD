@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+    discovery_green:
+        image: nowgnas/stockey:latest
+        ports:
+            - "8081:8761"
+
+    discovery_blue:
+        image: nowgnas/stockey:latest
+        ports:
+            - "8082:8761"
