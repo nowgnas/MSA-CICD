@@ -16,8 +16,6 @@ DOCKER_COMPOSE_FILE=$DIR/docker-compose.yml
 GREEN_SERVICE_NAME=$SERVICE_green
 BLUE_SERVICE_NAME=$SERVICE_blue
 
-pwd
-ls
 # check if git repo exists
 if [ ! -d $REPO ]; then
   # git clone repo
@@ -31,10 +29,7 @@ else
   cd ..
 fi
 
-pwd
-
-uname -a
-
+echo "docker build"
 # build new docker image
 docker build -f server/discovery-service/Dockerfile -t $DOCKER_REPO:latest .
 
@@ -42,10 +37,12 @@ docker build -f server/discovery-service/Dockerfile -t $DOCKER_REPO:latest .
 echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
 docker push $DOCKER_REPO:latest
 
+echo "docker compose start"
 # stop and remove the current blue service
 docker-compose -f $DOCKER_COMPOSE_FILE stop $BLUE_SERVICE_NAME
 docker-compose -f $DOCKER_COMPOSE_FILE rm -f $BLUE_SERVICE_NAME
 
+echo "docekr stop rename up"
 # rename green service to blue
 docker-compose -f $DOCKER_COMPOSE_FILE stop $GREEN_SERVICE_NAME
 docker-compose -f $DOCKER_COMPOSE_FILE rename $GREEN_SERVICE_NAME $BLUE_SERVICE_NAME
