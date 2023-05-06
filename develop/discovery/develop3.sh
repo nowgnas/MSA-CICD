@@ -20,6 +20,7 @@ if [ ! -d $SERVICE ]; then
   mkdir $SERVICE
   cd $SERVICE
 fi
+
 # check if git repo exists
 if [ ! -d $REPO ]; then
   # git clone repo
@@ -30,7 +31,6 @@ else
   # git pull latest changes
   cd $REPO
   git pull
-  cd ..
 fi
 
 echo "docker build"
@@ -41,24 +41,11 @@ docker build -f server/discovery-service/Dockerfile -t $DOCKER_REPO:latest .
 echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
 docker push $DOCKER_REPO:latest
 
-echo "docker compose start"
-# stop and remove the current blue service
-docker-compose -f $DOCKER_COMPOSE_FILE stop $BLUE_SERVICE_NAME
-docker-compose -f $DOCKER_COMPOSE_FILE rm -f $BLUE_SERVICE_NAME
-
-echo "docekr stop rename up"
-# rename green service to blue
-docker-compose -f $DOCKER_COMPOSE_FILE stop $GREEN_SERVICE_NAME
-docker-compose -f $DOCKER_COMPOSE_FILE rename $GREEN_SERVICE_NAME $BLUE_SERVICE_NAME
-docker-compose -f $DOCKER_COMPOSE_FILE up -d $BLUE_SERVICE_NAME
-
-# start new green service
-docker-compose -f $DOCKER_COMPOSE_FILE up -d --scale $GREEN_SERVICE_NAME=1
-
-# remove old images
-docker image prune -f
+echo "deploying stack"
+# deploy stack with updated image
+docker stack deploy --compose-file $DOCKER_COMPOSE_FILE --with-registry-auth --resolve-image always --prune $SERVICE
 
 # confirm that blue-green deployment was successful
-docker-compose -f $DOCKER_COMPOSE_FILE ps
+docker stack ps $SERVICE
 
 rm -rf $REPO
