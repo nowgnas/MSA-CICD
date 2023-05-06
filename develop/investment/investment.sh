@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # set variables
-SERVICE=config
+SERVICE=investment
 DIR=$(pwd)/server
 REPO=S08P31A205
-BRANCH=dev-be/config
+BRANCH=dev-be/investment
 GITLAB_USERNAME=swlee0376
 GITLAB_PASSWORD=BcQJVNsusbhbymaS3w27
 
@@ -12,7 +12,7 @@ DOCKER_HUB_USERNAME=nowgnas
 DOCKER_HUB_PASSWORD=dltkddnjs!!
 DOCKER_REPO=nowgnas/stockey:$SERVICE
 
-DOCKER_COMPOSE_FILE=$DIR/config.yml
+DOCKER_COMPOSE_FILE=$DIR/investment.yml
 GREEN_SERVICE_NAME=$SERVICE_green
 BLUE_SERVICE_NAME=$SERVICE_blue
 
@@ -38,7 +38,7 @@ fi
 
 echo "docker build"
 # build new docker image
-docker build -f server/config-service/Dockerfile -t $DOCKER_REPO .
+docker build -f server/investment-service/Dockerfile -t $DOCKER_REPO .
 
 # push to docker hub
 echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
@@ -61,8 +61,7 @@ docker service create \
   --name ${SERVICE}blue \
   --network $NETWORK \
   --env PROFILE=dev \
-  --env ENCRYPT=stockey-key \
-  --publish 8084:8888 \
+  --publish 8088:8081 \
   --detach \
   $DOCKER_REPO
 
@@ -76,8 +75,7 @@ docker service create \
   --name ${SERVICE}green \
   --network $NETWORK \
   --env PROFILE=dev \
-  --env ENCRYPT=stockey-key \
-  --publish 8085:8888 \
+  --publish 8089:8081 \
   --detach \
   $DOCKER_REPO
 
@@ -95,7 +93,6 @@ docker service update \
   --update-max-failure-ratio 0.5 \
   --update-failure-action rollback \
   --env-add PROFILE=dev \
-  --env-add ENCRYPT=stockey-key \
   ${SERVICE}blue
 
 # Waiting for the routing mesh to update
