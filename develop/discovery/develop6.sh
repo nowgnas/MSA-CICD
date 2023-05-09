@@ -21,19 +21,19 @@ NETWORK=stockey-overlay
 if [ ! -d $SERVICE ]; then
   mkdir $SERVICE
 fi
+cd $SERVICE
 # check if git repo exists
 if [ ! -d $REPO ]; then
   # git clone repo
-  cd $SERVICE
+  
   git clone -b ${BRANCH} https://${GITLAB_USERNAME}:${GITLAB_PASSWORD}@lab.ssafy.com/s08-final/${REPO}.git
   ls
   cd $REPO
 else
   # git pull latest changes
-  cd $SERVICE
+
   cd $REPO
   git pull
-  cd ..
 fi
 
 echo "docker build"
@@ -103,5 +103,5 @@ sleep 30
 docker service rm ${SERVICE}blue
 
 echo "Blue-green deployment completed successfully!"
-
+cd ..
 sudo rm -rf ${REPO}
