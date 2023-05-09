@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # set variables
-SERVICE=config
+SERVICE=discovery
 
 REPO=S08P31A205
-BRANCH=dev-be/config
+BRANCH=dev-be/discovery
 GITLAB_USERNAME=swlee0376
 GITLAB_PASSWORD=BcQJVNsusbhbymaS3w27
 
@@ -41,13 +41,13 @@ echo "current dir: $(pwd)"
 
 echo "docker build"
 # build new docker image
-docker build -f server/config-service/Dockerfile -t $DOCKER_REPO .
+docker build -f server/discovery-service/Dockerfile -t stockey:$SERVICE .
 
 # ------- push docker image to docker hub ---------
 
-# Pushing the Docker image to Docker Hub
-echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
-docker push $DOCKER_REPO
+# # Pushing the Docker image to Docker Hub
+# echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+# docker push stockey:$SERVICE
 
 # Deploying the Docker image using blue-green deployment strategy without Docker Swarm services
 
@@ -55,7 +55,7 @@ docker push $DOCKER_REPO
 docker rm -f $GREEN_SERVICE_NAME >/dev/null 2>&1
 
 # Running the blue container
-docker run --name $BLUE_SERVICE_NAME --network $NETWORK -d -p 8084:8888 -e PROFILE=dev -e ENCRYPT=stockey-key --network-alias $SERVICE $DOCKER_REPO
+docker run --name $BLUE_SERVICE_NAME --network "stockey-overlay" -d -p 8082:8761 -e PROFILE=dev --network-alias $SERVICE stockey:$SERVICE
 
 echo "Waiting for the blue deployment to stabilize..."
 sleep 30
@@ -64,8 +64,7 @@ sleep 30
 docker rm -f $BLUE_SERVICE_NAME >/dev/null 2>&1
 
 # Running the green container
-docker run --name $GREEN_SERVICE_NAME --network $NETWORK -d -p 8085:8888 -e PROFILE=dev -e ENCRYPT=stockey-key --network-alias $SERVICE $DOCKER_REPO
-
+docker run --name $GREEN_SERVICE_NAME --network "stockey-overlay" -d -p 8083:8761 -e PROFILE=dev --network-alias $SERVICE stockey:$SERVICE
 
 echo "Waiting for the green deployment to stabilize..."
 sleep 30

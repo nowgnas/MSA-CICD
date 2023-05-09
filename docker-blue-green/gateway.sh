@@ -1,21 +1,18 @@
 #!/bin/bash
 
 # set variables
-SERVICE=config
+SERVICE=apigateway
 
 REPO=S08P31A205
-BRANCH=dev-be/config
+BRANCH=dev-be/apigateway
 GITLAB_USERNAME=swlee0376
 GITLAB_PASSWORD=BcQJVNsusbhbymaS3w27
 
 DOCKER_HUB_USERNAME=nowgnas
 DOCKER_HUB_PASSWORD=dltkddnjs!!
-DOCKER_REPO=nowgnas/stockey:$SERVICE
 
 GREEN_SERVICE_NAME=$SERVICE_green
 BLUE_SERVICE_NAME=$SERVICE_blue
-
-NETWORK=stockey-overlay
 
 if [ ! -d $SERVICE ]; then
   mkdir $SERVICE
@@ -41,13 +38,13 @@ echo "current dir: $(pwd)"
 
 echo "docker build"
 # build new docker image
-docker build -f server/config-service/Dockerfile -t $DOCKER_REPO .
+docker build -f server/apigateway-service/Dockerfile -t nowgnas/stockey:$SERVICE .
 
 # ------- push docker image to docker hub ---------
 
 # Pushing the Docker image to Docker Hub
 echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
-docker push $DOCKER_REPO
+docker push nowgnas/stockey:$SERVICE
 
 # Deploying the Docker image using blue-green deployment strategy without Docker Swarm services
 
@@ -55,7 +52,7 @@ docker push $DOCKER_REPO
 docker rm -f $GREEN_SERVICE_NAME >/dev/null 2>&1
 
 # Running the blue container
-docker run --name $BLUE_SERVICE_NAME --network $NETWORK -d -p 8084:8888 -e PROFILE=dev -e ENCRYPT=stockey-key --network-alias $SERVICE $DOCKER_REPO
+docker run --name $BLUE_SERVICE_NAME --network "stockey-overlay" -d -p 8086:8000 -e PROFILE=dev --network-alias $SERVICE nowgnas/stockey:$SERVICE
 
 echo "Waiting for the blue deployment to stabilize..."
 sleep 30
@@ -64,8 +61,7 @@ sleep 30
 docker rm -f $BLUE_SERVICE_NAME >/dev/null 2>&1
 
 # Running the green container
-docker run --name $GREEN_SERVICE_NAME --network $NETWORK -d -p 8085:8888 -e PROFILE=dev -e ENCRYPT=stockey-key --network-alias $SERVICE $DOCKER_REPO
-
+docker run --name $GREEN_SERVICE_NAME --network "stockey-overlay" -d -p 8087:8000 -e PROFILE=dev --network-alias $SERVICE nowgnas/stockey:$SERVICE
 
 echo "Waiting for the green deployment to stabilize..."
 sleep 30

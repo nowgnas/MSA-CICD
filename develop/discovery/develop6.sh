@@ -62,6 +62,7 @@ docker service create \
   --network $NETWORK \
   --env PROFILE=dev \
   --publish 8082:8761 \
+  --network-alias $SERVICE \
   --detach \
   $DOCKER_REPO
 
@@ -76,6 +77,7 @@ docker service create \
   --network $NETWORK \
   --env PROFILE=dev \
   --publish 8083:8761 \
+  --network-alias $SERVICE \
   --detach \
   $DOCKER_REPO
 
