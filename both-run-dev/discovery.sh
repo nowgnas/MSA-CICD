@@ -16,6 +16,10 @@ DOCKER_COMPOSE_FILE=$DIR/discovery.yml
 GREEN_SERVICE_NAME=$SERVICE"-green"
 BLUE_SERVICE_NAME=$SERVICE"-blue"
 
+BACKPORT=8000
+BLUEPORT=10.0.0.11:8082
+GREENPORT=10.0.0.12:8083
+
 NETWORK=stockey-overlay
 
 if [ ! -d $SERVICE ]; then
@@ -61,7 +65,7 @@ docker service create \
   --name $BLUE_SERVICE_NAME \
   --network $NETWORK \
   --env PROFILE=dev \
-  --publish 8082:8761 \
+  --publish $BLUEPORT:$BACKPORT \
   --detach \
   $DOCKER_REPO
 
@@ -76,7 +80,7 @@ docker service create \
   --name $GREEN_SERVICE_NAME \
   --network $NETWORK \
   --env PROFILE=dev \
-  --publish 8083:8761 \
+  --publish $GREENPORT:$BACKPORT \
   --detach \
   $DOCKER_REPO
 

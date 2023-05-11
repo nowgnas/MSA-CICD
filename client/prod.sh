@@ -40,10 +40,16 @@ docker build -f frontend/Dockerfile -t $DOCKER_REPO .
 echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
 docker push $DOCKER_REPO
 
+docker rm -f client
+
 docker run -d \
   --name client \
   --network $NETWORK \
   -p 3000:3000 \
+  -p 80:80 \
+  -p 443:443 \
+  -v /etc/nginx:/etc/nginx \
+  -v /etc/letsencrypt:/etc/letsencrypt \
   $DOCKER_REPO
 
 cd ..
