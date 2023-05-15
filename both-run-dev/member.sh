@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # set variables
-SERVICE=discovery
+SERVICE=member
 DIR=$(pwd)/server
 REPO=S08P31A205
-BRANCH=dev-be/discovery
+BRANCH=dev-be/member
 GITLAB_USERNAME=swlee0376
 GITLAB_PASSWORD=BcQJVNsusbhbymaS3w27
 
@@ -12,13 +12,13 @@ DOCKER_HUB_USERNAME=nowgnas
 DOCKER_HUB_PASSWORD=dltkddnjs!!
 DOCKER_REPO=nowgnas/stockey:$SERVICE
 
-DOCKER_COMPOSE_FILE=$DIR/discovery.yml
+DOCKER_COMPOSE_FILE=$DIR/member.yml
 GREEN_SERVICE_NAME=$SERVICE"-green"
 BLUE_SERVICE_NAME=$SERVICE"-blue"
 
-BACKPORT=8761
-BLUEPORT=8082
-GREENPORT=8083
+BACKPORT=8081
+BLUEPORT=8090
+GREENPORT=8091
 
 NETWORK=stockey-overlay
 
@@ -42,7 +42,7 @@ fi
 
 echo "docker build"
 # build new docker image
-docker build -f server/discovery-service/Dockerfile -t $DOCKER_REPO .
+docker build -f server/member-service/Dockerfile -t $DOCKER_REPO .
 
 # push to docker hub
 echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
@@ -65,6 +65,7 @@ docker service create \
   --name $BLUE_SERVICE_NAME \
   --network $NETWORK \
   --env PROFILE=dev \
+  --env ENCRYPT=stockey-key \
   --publish $BLUEPORT:$BACKPORT \
   --detach \
   $DOCKER_REPO
@@ -80,6 +81,7 @@ docker service create \
   --name $GREEN_SERVICE_NAME \
   --network $NETWORK \
   --env PROFILE=dev \
+  --env ENCRYPT=stockey-key \
   --publish $GREENPORT:$BACKPORT \
   --detach \
   $DOCKER_REPO
@@ -98,6 +100,7 @@ docker service update \
   --update-max-failure-ratio 0.5 \
   --update-failure-action rollback \
   --env-add PROFILE=dev \
+  --env-add ENCRYPT=stockey-key \
   $BLUE_SERVICE_NAME
 
 # Waiting for the routing mesh to update
