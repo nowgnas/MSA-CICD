@@ -68,3 +68,4 @@ docker run -d \
 echo "Blue-green deployment completed successfully!"
 cd ..
 sudo rm -rf $REPO
+docker image prune -a

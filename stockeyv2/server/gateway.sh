@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # set variables
-SERVICE=favorite
+SERVICE=apigateway
 DIR=$(pwd)/server
 REPO=S08P31A205
-BRANCH=dev-be/favorite
+BRANCH=dev-be/apigateway
 GITLAB_USERNAME=swlee0376
 GITLAB_PASSWORD=BcQJVNsusbhbymaS3w27
 
@@ -12,12 +12,13 @@ DOCKER_HUB_USERNAME=nowgnas
 DOCKER_HUB_PASSWORD=dltkddnjs!!
 DOCKER_REPO=nowgnas/stockey:$SERVICE
 
-DOCKER_COMPOSE_FILE=$DIR/favorite.yml
+DOCKER_COMPOSE_FILE=$DIR/apigateway.yml
 GREEN_SERVICE_NAME=$SERVICE"-green"
 BLUE_SERVICE_NAME=$SERVICE"-blue"
 
-BACKPORT=8084
-BLUEPORT=8089
+BACKPORT=8000
+BLUEPORT=8085
+GREENPORT=8083
 
 NETWORK=stockey-overlay
 
@@ -41,7 +42,7 @@ fi
 
 echo "docker build"
 # build new docker image
-docker build -f server/favorite-service/Dockerfile -t $DOCKER_REPO .
+docker build -f server/apigateway-service/Dockerfile -t $DOCKER_REPO .
 
 # push to docker hub
 echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
@@ -62,10 +63,12 @@ docker run -d \
   --name $SERVICE \
   --network $NETWORK \
   -e PROFILE=dev \
+  -e TZ=Asia/Seoul \
   -p $BLUEPORT:$BACKPORT \
   $DOCKER_REPO
 
 echo "Blue-green deployment completed successfully!"
 cd ..
 sudo rm -rf $REPO
+
 docker image prune -a

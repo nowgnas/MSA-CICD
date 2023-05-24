@@ -62,10 +62,12 @@ docker run -d \
   --name $SERVICE \
   --network $NETWORK \
   -e PROFILE=dev \
+  -e TZ=Asia/Seoul \
   -p $BLUEPORT:$BACKPORT \
   $DOCKER_REPO
 
 echo "Blue-green deployment completed successfully!"
 cd ..
 sudo rm -rf $REPO
+
 docker image prune -a

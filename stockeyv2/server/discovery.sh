@@ -63,10 +63,59 @@ docker run -d \
   --name $SERVICE \
   --network $NETWORK \
   -e PROFILE=dev \
+  -e TZ=Asia/Seoul \
   -p $BLUEPORT:$BACKPORT \
   $DOCKER_REPO
+
+
+# docker service rm $BLUE_SERVICE_NAME
+
+# # Creating a Docker service with the blue deployment
+# docker service create \
+#   --name $BLUE_SERVICE_NAME \
+#   --network $NETWORK \
+#   --env PROFILE=dev \
+#   --publish $BLUEPORT:$BACKPORT \
+#   --detach \
+#   $DOCKER_REPO
+
+# # Waiting for the blue deployment to stabilize
+# echo "Waiting for the blue deployment to stabilize..."
+# sleep 30
+
+# docker service rm $GREEN_SERVICE_NAME
+
+# # Creating a Docker service with the green deployment
+# docker service create \
+#   --name $GREEN_SERVICE_NAME \
+#   --network $NETWORK \
+#   --env PROFILE=dev \
+#   --publish $GREENPORT:$BACKPORT \
+#   --detach \
+#   $DOCKER_REPO
+
+# # Waiting for the green deployment to stabilize
+# echo "Waiting for the green deployment to stabilize..."
+# sleep 30
+
+# # Updating the routing mesh to route traffic to the green deployment
+# docker service update \
+#   --detach \
+#   --update-parallelism 1 \
+#   --update-delay 10s \
+#   --update-order start-first \
+#   --update-monitor 30s \
+#   --update-max-failure-ratio 0.5 \
+#   --update-failure-action rollback \
+#   --env-add PROFILE=dev \
+#   $BLUE_SERVICE_NAME
+
+# Waiting for the routing mesh to update
+echo "Waiting for the routing mesh to update..."
+sleep 30
 
 echo "Blue-green deployment completed successfully!"
 cd ..
 sudo rm -rf $REPO
+
 docker image prune -a
